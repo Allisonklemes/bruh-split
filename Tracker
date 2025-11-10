@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bruh Split Web</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      color: #111;
+    }
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 12px 16px 4px;
+      border-bottom: 1px solid #eee;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    nav {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .tab-button {
+      flex: 1;
+      white-space: nowrap;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      padding: 6px 10px;
+      font-size: 13px;
+      background: #fafafa;
+      cursor: pointer;
+    }
+    .tab-button.active {
+      background: #111;
+      color: #fff;
+      border-color: #111;
+    }
+    main {
+      padding: 12px 16px 16px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 16px 0 8px;
+    }
+    .card {
+      background: #fafafa;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      border: 1px solid #eee;
+    }
+    label {
+      font-size: 13px;
+      display: block;
+      margin-bottom: 4px;
+    }
+    input[type="number"],
+    input[type="text"],
+    input[type="date"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
+    button {
+      padding: 8px 13px;
+      border-radius: 999px;
+      border: none;
+      background: #111;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: #fff;
+      color: #111;
+      border: 1px solid #ccc;
+    }
+    button.small {
+      font-size: 12px;
+      padding: 6px 10px;
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .grow {
+      flex: 1;
+    }
+    .small {
+      font-size: 12px;
+      color: #666;
+    }
+    .timer-display {
+      font-size: 32px;
+      font-weight: 700;
+      text-align: center;
+      margin: 4px 0 8px;
+    }
+    .exercise {
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid #eee;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+    }
+    .exercise-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .exercise-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .exercise-last {
+      font-size: 11px;
+      color: #666;
+      text-align: right;
+    }
+    .exercise-form {
+      margin-top: 8px;
+      display: none;
+    }
+    .exercise-form.visible {
+      display: block;
+    }
+    .badge {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+    }
+    .badge-complete {
+      border-color: #0a0;
+      color: #0a0;
+    }
+    .history-session {
+      border-radius: 10px;
+      border: 1px solid #eee;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      background: #fff;
+    }
+    .history-title {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .history-sub {
+      font-size: 11px;
+      color: #666;
+      margin-top: 2px;
+    }
+    .history-actions {
+      margin-top: 6px;
+      display: flex;
+      gap: 6px;
+    }
+    footer {
+      border-top: 1px solid #eee;
+      padding: 6px 12px;
+      font-size: 11px;
+      text-align: center;
+      color: #888;
+      background: #fafafa;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Bruh Split</h1>
+      <nav>
+        <button class="tab-button active" data-tab="workouts">Workouts</button>
+        <button class="tab-button" data-tab="metrics">Metrics</button>
+        <button class="tab-button" data-tab="history">History</button>
+        <button class="tab-button" data-tab="timer">Timer</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Workouts tab -->
+      <section id="tab-workouts">
+        <p class="small">Start with 30 minutes of cardio 🏃‍♀️, then hit your day below.</p>
+        <div id="workoutsList"></div>
+      </section>
+
+      <!-- Metrics tab -->
+      <section id="tab-metrics" class="hidden">
+        <div class="card">
+          <div class="section-title" style="margin-top:0;">Latest Weight</div>
+          <p id="latestWeight" class="small">No weight logged yet.</p>
+        </div>
+
+        <div class="card">
+          <div class="section-title" style="margin-top:0;">Add New Weight</div>
+          <label for="weightInput">Body weight (lbs)</label>
+          <input id="weightInput" type="number" step="0.1" placeholder="Body weight" />
+          <label for="weightDate" style="margin-top:8px;">Date</label>
+          <input id="weightDate" type="date" />
+          <div class="row" style="justify-content:flex-end;margin-top:10px;">
+            <button onclick="addWeight()">Save</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title" style="margin-top:0;">Weight History</div>
+          <div id="weightHistory" class="small">No entries yet.</div>
+        </div>
+      </section>
+
+      <!-- History tab -->
+      <section id="tab-history" class="hidden">
+        <div class="card">
+          <div class="section-title" style="margin-top:0;">Past Workouts</div>
+          <div id="sessionsList" class="small">No sessions yet. Finish a workout to save it here.</div>
+        </div>
+      </section>
+
+      <!-- Timer tab -->
+      <section id="tab-timer" class="hidden">
+        <div class="card">
+          <div class="section-title" style="margin-top:0;">Countdown Timer</div>
+          <label for="countdownInput" class="small">Duration (seconds)</label>
+          <input id="countdownInput" type="number" min="10" max="600" step="5" value="90" />
+          <div id="countdownDisplay" class="timer-display">01:30</div>
+          <div class="row" style="justify-content:center;">
+            <button class="small" onclick="startCountdown()">Start</button>
+            <button class="small secondary" onclick="pauseCountdown()">Pause</button>
+            <button class="small secondary" onclick="resetCountdown()">Reset</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title" style="margin-top:0;">Stopwatch</div>
+          <div id="stopwatchDisplay" class="timer-display">00:00</div>
+          <div class="row" style="justify-content:center;">
+            <button class="small" onclick="startStopwatch()">Start</button>
+            <button class="small secondary" onclick="pauseStopwatch()">Pause</button>
+            <button class="small secondary" onclick="resetStopwatch()">Reset</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Data saved locally on this device · Bruh Split web
+    </footer>
+  </div>
+
+  <script>
+    /* ========= Data definitions ========= */
+
+    const workoutDays = [
+      {
+        id: "push",
+        name: "Day 1 – Push",
+        description: "Chest • Shoulders • Triceps",
+        exercises: [
+          "Bench Press",
+          "Incline Dumbbell Press",
+          "Overhead Shoulder Press",
+          "Lateral Raises",
+          "Tricep Dips / Pushdowns"
+        ]
+      },
+      {
+        id: "pull",
+        name: "Day 2 – Pull",
+        description: "Back • Biceps",
+        exercises: [
+          "Pull-Ups / Lat Pulldown",
+          "Barbell or Cable Row",
+          "Face Pulls",
+          "Bicep Curls",
+          "Hammer Curls"
+        ]
+      },
+      {
+        id: "legs",
+        name: "Day 3 – Legs & Glutes",
+        description: "Quads • Hamstrings • Glutes",
+        exercises: [
+          "Squats or Leg Press",
+          "Romanian Deadlifts",
+          "Walking Lunges",
+          "Hip Thrusts",
+          "Calf Raises"
+        ]
+      }
+    ];
+
+    const STORAGE_KEYS = {
+      weight: "bruhsplit_weights",
+      sessions: "bruhsplit_sessions"
+    };
+
+    const exerciseKey = (dayName, exerciseName) =>
+      `bruhsplit_ex_${dayName.replace(/\s+/g, "_")}_${exerciseName.replace(/\s+/g, "_")}`;
+
+    /* ========= Helpers ========= */
+
+    const loadJSON = (key, fallback) => {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch {
+        return fallback;
+      }
+    };
+
+    const saveJSON = (key, value) =>
+      localStorage.setItem(key, JSON.stringify(value));
+
+    const formatDateTime = iso =>
+      new Date(iso).toLocaleString(undefined, {
+        dateStyle: "short",
+        timeStyle: "short"
+      });
+
+    const formatDate = iso =>
+      new Date(iso).toLocaleDateString(undefined, { dateStyle: "medium" });
+
+    const formatTime = secs => {
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+    };
+
+    /* ========= Tab switching ========= */
+
+    document.querySelectorAll(".tab-button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const tab = btn.dataset.tab;
+        document
+          .querySelectorAll(".tab-button")
+          .forEach(b => b.classList.toggle("active", b === btn));
+        document
+          .querySelectorAll("main section")
+          .forEach(sec =>
+            sec.id === `tab-${tab}`
+              ? sec.classList.remove("hidden")
+              : sec.classList.add("hidden")
+          );
+      });
+    });
+
+    /* ========= Workouts rendering + logging ========= */
+
+    function loadLastExerciseLog(dayName, exerciseName) {
+      return loadJSON(exerciseKey(dayName, exerciseName), null);
+    }
+
+    function saveExerciseLog(dayName, exerciseName, log) {
+      saveJSON(exerciseKey(dayName, exerciseName), log);
+    }
+
+    function renderWorkouts() {
+      const container = document.getElementById("workoutsList");
+      container.innerHTML = "";
+
+      workoutDays.forEach(day => {
+        const dayCard = document.createElement("div");
+        dayCard.className = "card";
+        dayCard.dataset.dayId = day.id;
+
+        const latestLogs = day.exercises.map(ex =>
+          loadLastExerciseLog(day.name, ex)
+        );
+        const anyCompleted = latestLogs.some(Boolean);
+
+        dayCard.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <div>
+              <div class="section-title" style="margin-top:0;">${day.name}</div>
+              <div class="small">${day.description}</div>
+            </div>
+            <div class="badge ${
+              anyCompleted ? "badge-complete" : ""
+            }">${anyCompleted ? "Has logs" : "No logs"}</div>
+          </div>
+          <div class="small" style="margin-top:8px;margin-bottom:4px;">Exercises</div>
+          <div class="exercise-list"></div>
+          <div class="row" style="justify-content:flex-end;margin-top:10px;">
+            <button class="small finish-btn">Finish Workout</button>
+          </div>
+        `;
+
+        const exList = dayCard.querySelector(".exercise-list");
+
+        day.exercises.forEach(exerciseName => {
+          const exDiv = document.createElement("div");
+          exDiv.className = "exercise";
+          exDiv.dataset.dayName = day.name;
+          exDiv.dataset.exerciseName = exerciseName;
+
+          const last = loadLastExerciseLog(day.name, exerciseName);
+          const lastText = last
+            ? `${last.weight.toFixed(1)} lbs × ${last.reps} reps · ${formatDateTime(
+                last.date
+              )}`
+            : "No log yet";
+
+          exDiv.innerHTML = `
+            <div class="exercise-main">
+              <div class="exercise-name">${exerciseName}</div>
+              <div class="exercise-last">${lastText}</div>
+            </div>
+            <div class="exercise-form">
+              <div class="row">
+                <input class="ex-weight grow" type="number" step="0.5" placeholder="Weight (lbs)" />
+                <input class="ex-reps" type="number" min="1" step="1" placeholder="Reps" style="width:80px;" />
+              </div>
+              <div class="row" style="justify-content:flex-end;margin-top:6px;">
+                <button class="small save-set-btn">Save Set</button>
+              </div>
+            </div>
+          `;
+
+          exList.appendChild(exDiv);
+        });
+
+        container.appendChild(dayCard);
+      });
+    }
+
+    // Event delegation for exercise interactions
+    document.addEventListener("click", e => {
+      const exMain = e.target.closest(".exercise-main");
+      if (exMain) {
+        const form = exMain.parentElement.querySelector(".exercise-form");
+        form.classList.toggle("visible");
+        return;
+      }
+
+      const saveBtn = e.target.closest(".save-set-btn");
+      if (saveBtn) {
+        const ex = saveBtn.closest(".exercise");
+        const dayName = ex.dataset.dayName;
+        const exerciseName = ex.dataset.exerciseName;
+        const weightInput = ex.querySelector(".ex-weight");
+        const repsInput = ex.querySelector(".ex-reps");
+        const weight = parseFloat(weightInput.value.replace(",", "."));
+        const reps = parseInt(repsInput.value, 10);
+        if (isNaN(weight) || !reps || reps <= 0) {
+          alert("Enter a valid weight and reps.");
+          return;
+        }
+        const log = {
+          weight,
+          reps,
+          date: new Date().toISOString()
+        };
+        saveExerciseLog(dayName, exerciseName, log);
+        ex.querySelector(
+          ".exercise-last"
+        ).textContent = `${weight.toFixed(1)} lbs × ${reps} reps · ${formatDateTime(
+          log.date
+        )}`;
+        weightInput.value = "";
+        repsInput.value = "";
+        ex.querySelector(".exercise-form").classList.remove("visible");
+        renderWorkouts(); // refresh badges
+      }
+
+      const finishBtn = e.target.closest(".finish-btn");
+      if (finishBtn) {
+        const dayCard = finishBtn.closest(".card");
+        const dayId = dayCard.dataset.dayId;
+        const day = workoutDays.find(d => d.id === dayId);
+        finishWorkout(day);
+      }
+
+      const editSessionBtn = e.target.closest(".edit-session-btn");
+      if (editSessionBtn) {
+        const id = editSessionBtn.dataset.id;
+        editSession(id);
+      }
+
+      const deleteSessionBtn = e.target.closest(".delete-session-btn");
+      if (deleteSessionBtn) {
+        const id = deleteSessionBtn.dataset.id;
+        deleteSession(id);
+      }
+    });
+
+    function finishWorkout(day) {
+      let total = 0;
+      day.exercises.forEach(ex => {
+        const log = loadLastExerciseLog(day.name, ex);
+        if (log) total += log.weight * log.reps;
+      });
+
+      const sessions = loadJSON(STORAGE_KEYS.sessions, []);
+      const session = {
+        id: Date.now().toString(),
+        date: new Date().toISOString(),
+        dayName: day.name,
+        totalVolume: total
+      };
+      sessions.push(session);
+      saveJSON(STORAGE_KEYS.sessions, sessions);
+      renderSessions();
+
+      alert(
+        `Saved session for ${day.name}.\nTotal weight lifted: ${total.toFixed(
+          0
+        )} lbs`
+      );
+    }
+
+    /* ========= Metrics (weight log) ========= */
+
+    function renderWeights() {
+      const weights = loadJSON(STORAGE_KEYS.weight, []);
+      const latestEl = document.getElementById("latestWeight");
+      const historyEl = document.getElementById("weightHistory");
+
+      if (!weights.length) {
+        latestEl.textContent = "No weight logged yet.";
+        historyEl.textContent = "No entries yet.";
+        return;
+      }
+
+      const sorted = [...weights].sort(
+        (a, b) => new Date(a.date) - new Date(b.date)
+      );
+      const latest = sorted[sorted.length - 1];
+
+      latestEl.textContent = `${latest.value.toFixed(
+        1
+      )} lbs · ${formatDate(latest.date)}`;
+
+      historyEl.innerHTML = sorted
+        .reverse()
+        .map(w => `${formatDate(w.date)} – ${w.value.toFixed(1)} lbs`)
+        .join("<br/>");
+    }
+
+    function addWeight() {
+      const input = document.getElementById("weightInput");
+      const dateInput = document.getElementById("weightDate");
+      const value = parseFloat(input.value.replace(",", "."));
+      if (isNaN(value)) {
+        alert("Enter a valid weight.");
+        return;
+      }
+      const dateStr =
+        dateInput.value ||
+        new Date().toISOString().slice(0, 10); // yyyy-mm-dd
+
+      const weights = loadJSON(STORAGE_KEYS.weight, []);
+      weights.push({ value, date: dateStr });
+      saveJSON(STORAGE_KEYS.weight, weights);
+      input.value = "";
+      renderWeights();
+    }
+
+    /* ========= History (sessions) ========= */
+
+    function renderSessions() {
+      const sessions = loadJSON(STORAGE_KEYS.sessions, []);
+      const container = document.getElementById("sessionsList");
+
+      if (!sessions.length) {
+        container.textContent =
+          "No sessions yet. Finish a workout to save it here.";
+        return;
+      }
+
+      const sorted = [...sessions].sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      );
+      container.innerHTML = "";
+      sorted.forEach(session => {
+        const div = document.createElement("div");
+        div.className = "history-session";
+        div.innerHTML = `
+          <div class="history-title">${session.dayName}</div>
+          <div class="history-sub">${formatDateTime(session.date)}</div>
+          <div class="history-sub">Total: ${session.totalVolume.toFixed(
+            0
+          )} lbs</div>
+          <div class="history-actions">
+            <button class="small secondary edit-session-btn" data-id="${
+              session.id
+            }">Edit</button>
+            <button class="small secondary delete-session-btn" data-id="${
+              session.id
+            }">Delete</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function editSession(id) {
+      const sessions = loadJSON(STORAGE_KEYS.sessions, []);
+      const idx = sessions.findIndex(s => s.id === id);
+      if (idx === -1) return;
+      const session = sessions[idx];
+      const newName = prompt("Edit day name", session.dayName);
+      if (newName === null) return;
+      const newTotalStr = prompt(
+        "Edit total volume (lbs)",
+        session.totalVolume.toFixed(0)
+      );
+      if (newTotalStr === null) return;
+      const newTotal = parseFloat(newTotalStr);
+      if (isNaN(newTotal)) {
+        alert("Invalid total.");
+        return;
+      }
+      session.dayName = newName.trim() || session.dayName;
+      session.totalVolume = newTotal;
+      sessions[idx] = session;
+      saveJSON(STORAGE_KEYS.sessions, sessions);
+      renderSessions();
+    }
+
+    function deleteSession(id) {
+      if (!confirm("Delete this session?")) return;
+      const sessions = loadJSON(STORAGE_KEYS.sessions, []);
+      const filtered = sessions.filter(s => s.id !== id);
+      saveJSON(STORAGE_KEYS.sessions, filtered);
+      renderSessions();
+    }
+
+    /* ========= Timers ========= */
+
+    let countdownSeconds = 90;
+    let countdownInterval = null;
+
+    function updateCountdownDisplay() {
+      document.getElementById("countdownDisplay").textContent =
+        formatTime(countdownSeconds);
+    }
+
+    function startCountdown() {
+      if (countdownInterval) return;
+      const inputVal = parseInt(
+        document.getElementById("countdownInput").value,
+        10
+      );
+      if (!isNaN(inputVal) && inputVal > 0) countdownSeconds = inputVal;
+      updateCountdownDisplay();
+      countdownInterval = setInterval(() => {
+        if (countdownSeconds <= 0) {
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+          alert("Time's up!");
+          return;
+        }
+        countdownSeconds--;
+        updateCountdownDisplay();
+      }, 1000);
+    }
+
+    function pauseCountdown() {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+      }
+    }
+
+    function resetCountdown() {
+      pauseCountdown();
+      const inputVal = parseInt(
+        document.getElementById("countdownInput").value,
+        10
+      );
+      countdownSeconds = !isNaN(inputVal) && inputVal > 0 ? inputVal : 90;
+      updateCountdownDisplay();
+    }
+
+    let stopwatchSeconds = 0;
+    let stopwatchInterval = null;
+
+    function updateStopwatchDisplay() {
+      document.getElementById("stopwatchDisplay").textContent =
+        formatTime(stopwatchSeconds);
+    }
+
+    function startStopwatch() {
+      if (stopwatchInterval) return;
+      stopwatchInterval = setInterval(() => {
+        stopwatchSeconds++;
+        updateStopwatchDisplay();
+      }, 1000);
+    }
+
+    function pauseStopwatch() {
+      if (stopwatchInterval) {
+        clearInterval(stopwatchInterval);
+        stopwatchInterval = null;
+      }
+    }
+
+    function resetStopwatch() {
+      pauseStopwatch();
+      stopwatchSeconds = 0;
+      updateStopwatchDisplay();
+    }
+
+    /* ========= Initial render ========= */
+
+    renderWorkouts();
+    renderWeights();
+    renderSessions();
+    updateCountdownDisplay();
+    updateStopwatchDisplay();
+  </script>
+</body>
+</html>
